@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 void ret(){return;}
+int iadd(int in){return in+in;}
 void print_fnc(void* fnc, int bytes){
   char* code = fnc;
   for(int i = 0; i < bytes; i++){
@@ -8,9 +9,11 @@ void print_fnc(void* fnc, int bytes){
     int b = 0 + byte;
     printf("%o,",b);
   }
-   printf("\n--------------------------------------------------------\n");
+  printf("\n--------------------------------------------------------\n");
 }
 int main(){
-     printf("Ret:\n");
-     print_fnc(ret,16);
+    printf("ret:\n");
+    print_fnc(ret,1);
+    printf("iadd:\n");
+    print_fnc(iadd,16);
 }

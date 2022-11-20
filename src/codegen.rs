@@ -1,5 +1,25 @@
+#[derive(PartialEq)]
+struct LocVar(u8);
+const REX_W:u8 = 0x48;
+struct REX(u8);
+fn create_rex_prefix(is_wide:bool,a:LocVar,b:LocVar)->u8{
+    let is_wide = (is_wide as u8) << 3;
+    let mod_rm_a = (a.is_extended() as u8) << 2;
+    let mod_rm_b = b.is_extended() as u8;
+    0b100 | is_wide | mod_rm_a | mod_rm_b
+}
+impl LocVar{
+    fn into_mod_rm(src:&LocVar,dst:&LocVar)->u8{ 
+        if !src.is_reg() || !dst.is_reg(){panic!("Only up to 8 local variables are supported now.")}
+        else {0xc0 | src.0 << 3 | dst.0}
+    }
+    fn is_reg(&self)->bool{self.0 < 15}
+    fn is_extended(&self)->bool{self.0 > 7 && self.0 <  5} //Checks if LocVar is extended (registers 8-15)
+}
 pub enum CodeGenOp{
-    Add,
+    //Add(LocVar,LocVar),
+    MovI32(LocVar,LocVar),
+    //MovI64(LocVar,LocVar),
     Ret,
 }
 //Link entry: insert_point assembly_id method_id
@@ -25,7 +45,12 @@ impl MethodStub{
     fn compile(&mut self,ops:&[CodeGenOp]){
         for op in ops{
             match op{
-                CodeGenOp::Add=>todo!(),
+                CodeGenOp::MovI32(src,dst)=>{
+                    self.code.push(REX_W); //Prefix
+                    self.code.push(0x8b); //Move Register to Register
+                    self.code.push(LocVar::into_mod_rm(src,dst)); // Mod/RM byte
+                    println!("Mod/RM:{:x}",LocVar::into_mod_rm(src,dst));
+                }
                 CodeGenOp::Ret=>self.code.push(0o303),
             }
         }
@@ -72,7 +97,7 @@ impl Assembly{
 }
 #[cfg(test)]
 mod test{
-    use crate::codegen::{MethodStub,AssemblyStub,Assembly,CodeGenOp};
+    use crate::codegen::{MethodStub,AssemblyStub,Assembly,CodeGenOp,LocVar};
     #[test]
     fn compile_simplest(){
         let mut asm = AssemblyStub::new();
@@ -93,6 +118,20 @@ mod test{
         println!("asm:{asm:?}");
         let met = unsafe{asm.get_method::<(),()>(0)};
         met(());
+    }
+    #[test]
+    fn execute_identity(){
+        let mut asm = AssemblyStub::new();
+        let code = [CodeGenOp::MovI32(LocVar(0),LocVar(7)),CodeGenOp::Ret];
+        let mstub = MethodStub::new(&code);
+        asm.methods.push(mstub);
+        let asm = asm.into_assembly();
+        println!("asm:{asm:?}");
+        let met = unsafe{asm.get_method::<u16,u16>(0)};
+        for i in 0..0xFFFF{
+            let res = met(i);
+            assert!(i == res,"{res} != {i}");
+        }
     }
     
 }
