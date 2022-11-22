@@ -138,7 +138,7 @@ mod test{
     fn execute_identity_wide_move(){
         let mut asm = AssemblyStub::new();
         //Segfault happens because registers which should be callee saved are overwritten!
-        let code = [CodeGenOp::MovI32(LocVar(0),LocVar(1)),CodeGenOp::MovI32(LocVar(1),LocVar(2)),CodeGenOp::MovI32(LocVar(2),LocVar(13)),CodeGenOp::MovI32(LocVar(13),LocVar(7)),CodeGenOp::Ret];
+        let code = [CodeGenOp::MovI32(LocVar(0),LocVar(1)),CodeGenOp::MovI32(LocVar(1),LocVar(2)),CodeGenOp::MovI32(LocVar(2),LocVar(8)),CodeGenOp::MovI32(LocVar(8),LocVar(7)),CodeGenOp::Ret];
         let mstub = MethodStub::new(&code);
         asm.methods.push(mstub);
         let asm = asm.into_assembly();
@@ -149,7 +149,9 @@ mod test{
         //panic!();
         #[inline(never)]
         fn call_met(met:fn(u16)->u16,arg:u16)->u16{
-            met(arg)
+            use std::arch::asm;
+            let res = met(arg);
+            res
         }
         for i in 0..0x4{
             let res = call_met(met,i);
