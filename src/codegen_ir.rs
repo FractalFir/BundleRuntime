@@ -1,8 +1,8 @@
 /// TODO: rethink the use of word "alias" in code(it is not accurate depiction of what some function do and may be misleading).
 #[derive(Debug,PartialEq,Clone,Copy)]
-pub enum IrVar{
+pub(crate) enum IrVar{
 //   Arg(u8),
-    IReg(u8),
+    IReg(usize),
 }
 impl IrVar{
     fn alias(&mut self,var:IrVar,alias:IrVar){
@@ -11,7 +11,7 @@ impl IrVar{
 }
 impl Eq for IrVar{}
 #[derive(Debug,Clone,Copy,PartialEq)]
-pub enum IrOp{
+pub(crate) enum IrOp{
     Add(IrVar,IrVar),
     Mul(IrVar,IrVar),
     Mov(IrVar,IrVar),
@@ -151,7 +151,7 @@ fn sqish_vars(ops:&mut Vec<IrOp>){
         
     }
 }*/
-fn optimize_ir(ops:&mut Vec<IrOp>){
+pub(crate) fn optimize_ir(ops:&mut Vec<IrOp>){
     let mut last_size = ops.len();
     'opt: loop {
         push_pop_inline(ops);

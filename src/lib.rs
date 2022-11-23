@@ -1,6 +1,7 @@
 mod mem_mgr;
 use mem_mgr::*;
 mod codegen;
-mod codegen_ir;
+pub(crate) mod codegen_ir;
+mod cil;
 
 

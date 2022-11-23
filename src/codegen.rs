@@ -1,5 +1,5 @@
 #[derive(PartialEq)]
-struct LocVar(u8);
+pub struct LocVar(u8);
 const REX_W:u8 = 0x48;
 struct REX(u8);
 fn create_rex_prefix(is_wide:bool,a:&LocVar,b:&LocVar)->u8{
