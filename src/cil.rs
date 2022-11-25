@@ -1,6 +1,6 @@
 use crate::codegen_ir::*;
 #[derive(Debug)]
-pub (crate) enum CILOp{
+pub enum CILOp{
     LdArg(usize),
     Ret,
     Add,
@@ -40,20 +40,18 @@ mod test{
     use super::*;
     #[test]
     fn method_to_codegen_ir(){
-        let method = Method::new(vec![
-        CILOp::LdArg(0),CILOp::LdArg(0),CILOp::Mul,CILOp::LdArg(1),CILOp::LdArg(1),CILOp::Mul,CILOp::Add,CILOp::Ret
-        ].into(),2);
+        let method = MethodIR::new(&[ CILOp::LdArg(0),CILOp::LdArg(0),CILOp::Mul,CILOp::LdArg(1),CILOp::LdArg(1),CILOp::Mul,CILOp::Add,CILOp::Ret
+        ],2);
         let code = method.ops;
         let expected = [IrOp::Mul(IrVar::IReg(0), IrVar::IReg(0)), IrOp::Mul(IrVar::IReg(1), IrVar::IReg(1)), IrOp::Add(IrVar::IReg(1), IrVar::IReg(0)), IrOp::Return(IrVar::IReg(1))];
         assert!(*(&code as &[IrOp]) == *(&expected as &[IrOp]),"Generated optimized code {code:?} differs from expected code {expected:?}");
     }
-     #[test]
-    fn method_to_native_ir(){
-        let method = Method::new(vec![
-        CILOp::LdArg(0),CILOp::LdArg(0),CILOp::Mul,CILOp::LdArg(1),CILOp::LdArg(1),CILOp::Mul,CILOp::Add,CILOp::Ret
-        ].into(),2);
-        use crate::codegen::compile_method;
-        let compiled = compile_method(&method);
+    #[test]
+    fn method_to_native_ops(){
+        let method = MethodIR::new(&[CILOp::LdArg(0),CILOp::LdArg(0),CILOp::Mul,CILOp::LdArg(1),CILOp::LdArg(1),CILOp::Mul,CILOp::Add,CILOp::Ret
+        ],2);
+        use crate::codegen::CompiledMethod;
+        let compiled = CompiledMethod::compile(&method,"Test");
        
     }
 }

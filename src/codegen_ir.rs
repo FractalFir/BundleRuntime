@@ -163,13 +163,13 @@ pub(crate) fn optimize_ir(ops:&mut Vec<IrOp>){
     }
 }
 #[derive(Debug)]
-pub(crate) struct Method{
+pub struct MethodIR{
     pub(crate) ops:Box<[IrOp]>,
-    arg_count:usize,
+    pub(crate) arg_count:usize,
 }
 use crate::cil::CILOp;
-impl Method{
-    pub (crate) fn new(ops:Box<[CILOp]>,arg_count:usize)->Self{
+impl MethodIR{
+    pub fn new(ops:&[CILOp],arg_count:usize)->Self{
         let mut res = Vec::with_capacity(ops.len());
         let mut highest_var = arg_count;
         for op in ops.iter(){

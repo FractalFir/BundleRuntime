@@ -26,12 +26,10 @@ const PAGE_SIZE:usize = 4096;
 impl ExecutableMemory{
     pub fn new(size:usize)->Self{
         let mem_size = ((size+(PAGE_SIZE - 1))/PAGE_SIZE)*PAGE_SIZE;
-        println!("mem_size:{mem_size}");
         #[cfg(target_os = "linux")]
         unsafe {
-            let mem_beg = mmap(0 as *mut u8,4096,PROT_WRITE|PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_ANONYMUS,0,0);
+            let mem_beg = mmap(0xAAAAAAAAAAAAAAA as *mut u8,4096,PROT_WRITE|PROT_EXEC|PROT_READ,MAP_PRIVATE|MAP_ANONYMUS,0,0);
             assert!(mem_beg as usize != 0);
-            println!("{:x}",mem_beg as usize);
             Self{mem_size,mem_beg,is_write_protected:false}
         }
         #[cfg(not(target_os = "linux"))]
@@ -40,12 +38,10 @@ impl ExecutableMemory{
 }
 impl<'a> ExecutableMemory{
     pub fn get_slice_at(&'a self,beg:usize,size:usize)->&'a [u8]{
-        println!("{size}");
         if beg+size>=self.mem_size {panic!("Index outside mapped protected executable memory!")}
         else {unsafe{std::slice::from_raw_parts((self.mem_beg as usize + beg) as *mut u8,size)}}
     }
     pub fn get_mut_slice_at(&'a self,beg:usize,size:usize)->&'a mut [u8]{
-         println!("{size}");
         if beg+size>=self.mem_size {panic!("Index outside mapped protected executable memory!")}
         else {unsafe{std::slice::from_raw_parts_mut((self.mem_beg as usize + beg) as *mut u8,size)}}
     }
