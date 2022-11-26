@@ -4,6 +4,7 @@ pub enum CILOp{
     LdArg(usize),
     Ret,
     Add,
+    Sub,
     Mul,
 }
 impl CILOp{
@@ -23,6 +24,14 @@ impl CILOp{
                 res.push(IrOp::Pop(IrVar::IReg(*highest_var + 1)));
                 res.push(IrOp::Mov(IrVar::IReg(*highest_var),IrVar::IReg(*highest_var + 2)));
                 res.push(IrOp::Add(IrVar::IReg(*highest_var + 2),IrVar::IReg(*highest_var + 1)));
+                res.push(IrOp::Push(IrVar::IReg(*highest_var + 2)));
+                *highest_var+=3;
+            },
+            Self::Sub=>{
+                res.push(IrOp::Pop(IrVar::IReg(*highest_var)));
+                res.push(IrOp::Pop(IrVar::IReg(*highest_var + 1)));
+                res.push(IrOp::Mov(IrVar::IReg(*highest_var),IrVar::IReg(*highest_var + 2)));
+                res.push(IrOp::Sub(IrVar::IReg(*highest_var + 2),IrVar::IReg(*highest_var + 1)));
                 res.push(IrOp::Push(IrVar::IReg(*highest_var + 2)));
                 *highest_var+=3;
             },

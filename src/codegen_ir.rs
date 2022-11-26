@@ -13,6 +13,7 @@ impl Eq for IrVar{}
 #[derive(Debug,Clone,Copy,PartialEq)]
 pub(crate) enum IrOp{
     Add(IrVar,IrVar),
+    Sub(IrVar,IrVar),
     Mul(IrVar,IrVar),
     Mov(IrVar,IrVar),
     Pop(IrVar),
@@ -28,6 +29,10 @@ impl IrOp{
             IrOp::Add(ref mut val,ref mut addend)=>{
                 val.alias(var,alias);
                 addend.alias(var,alias);
+            },
+            IrOp::Sub(ref mut val,ref mut substractor)=>{
+                val.alias(var,alias);
+                substractor.alias(var,alias);
             },
             IrOp::Mul(ref mut multiplicand,ref mut multiplier)=>{
                 multiplicand.alias(var,alias);
@@ -48,6 +53,7 @@ impl IrOp{
     fn uses_variable(&self,var:IrVar)->bool{
         match self{
             IrOp::Add(val,addend)=>*val == var || *addend == var,
+            IrOp::Sub(val,addend)=>*val == var || *addend == var,
             IrOp::Mul(multiplicand,multiplier)=>*multiplicand == var || *multiplier == var,
             IrOp::Mov(source,target)=>*source == var || *target == var,
             IrOp::Push(src)=>*src == var,

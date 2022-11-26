@@ -94,4 +94,16 @@ mod test{
             }
         }
     }
+    #[test]
+    fn sub(){
+        let sub = MethodIR::new(&[CILOp::LdArg(0), CILOp::LdArg(1), CILOp::Sub, CILOp::Ret],2);
+        let asm = Assembly::from_raw(&[sub]);
+        let sub:fn((i64,i64))->i64 = asm.get_method("TODO").unwrap();
+        for x in 0..0xFF{
+            for y in 0..0xFF{
+                let res = sub((x,y));
+                assert!(x - y == res,"{res} != {}",x - y);
+            }
+        }
+    }
 }

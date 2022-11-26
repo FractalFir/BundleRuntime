@@ -37,6 +37,11 @@ pub (crate) fn compile_method(method:&MethodIR,path:&str)->CompiledMethod{
                 let mod_rm = modrm_adress_register(increment,to);
                 code.extend_from_slice(&[rex,0x01,mod_rm]);
             },
+            IrOp::Sub(to,increment)=>{
+                let rex = create_rex_prefix(0b0100,true,increment,to);
+                let mod_rm = modrm_adress_register(increment,to);
+                code.extend_from_slice(&[rex,0x29,mod_rm]);
+            },
             IrOp::Return(reg)=>{
                 let to = IrVar::IReg(6); //rax
                 if(*reg != to){
